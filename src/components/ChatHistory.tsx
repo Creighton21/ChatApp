@@ -183,6 +183,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 padding: "10px",
                 marginTop: "15px",
                 borderRadius: "5px",
+                width: "60%",
               }}
             >
               {/* Display images in a grid */}
