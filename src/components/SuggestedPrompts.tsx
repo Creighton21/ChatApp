@@ -1,6 +1,6 @@
-// src/components/SuggestedPrompts.tsx
+// src/SuggestedPrompts.tsx
 import React from "react";
-import { Box, Chip } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const SuggestedPrompts: React.FC<{
   prompts: string[];
@@ -9,26 +9,29 @@ const SuggestedPrompts: React.FC<{
   return (
     <Box
       sx={{
-        position: "fixed",
-        bottom: "100px", // Shift it upwards
-        left: "50%",
-        transform: "translateX(-50%)", // Center horizontally
         display: "flex",
         gap: "10px",
-        backgroundColor: "#fff",
-        padding: "10px",
-        borderRadius: "10px",
-        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+        padding: "5px",
+        overflowX: "auto", // Scroll within the prompt area if necessary
+        whiteSpace: "nowrap", // Prevent prompts from wrapping and causing overflow
       }}
     >
       {prompts.map((prompt, index) => (
-        <Chip
+        <Button
           key={index}
-          label={prompt}
-          onClick={() => onSelect(prompt)}
           variant="outlined"
-          sx={{ cursor: "pointer" }}
-        />
+          onClick={() => onSelect(prompt)}
+          sx={{
+            borderRadius: "20px",
+            textTransform: "none",
+            color: "blue",
+            borderColor: "blue",
+            fontSize: "0.85rem",
+            padding: "5px 10px",
+          }}
+        >
+          {prompt}
+        </Button>
       ))}
     </Box>
   );

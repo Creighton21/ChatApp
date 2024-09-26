@@ -2,20 +2,21 @@
 import React, { useState } from "react";
 import {
   Box,
-  Paper,
+  IconButton,
   Typography,
+  Paper,
   Dialog,
   DialogContent,
-  IconButton,
-  Link,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import PersonIcon from "@mui/icons-material/Person"; // Icon for the user
+import SmartToyIcon from "@mui/icons-material/SmartToy"; // Icon for AI (Copilot)
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Reference {
-  label: string;
-  url: string;
+  title: string;
+  url?: string; // Optional URL if the reference is a clickable link
 }
 
 interface Message {
@@ -26,142 +27,163 @@ interface Message {
   feedback?: "up" | "down" | null; // Track thumbs up/down for each message
 }
 
-const ChatHistory: React.FC<{
+interface ChatHistoryProps {
   messages: Message[];
   onFeedback: (index: number, feedback: "up" | "down" | null) => void;
-}> = ({ messages, onFeedback }) => {
-  const [openImage, setOpenImage] = useState<string | undefined>(undefined); // Use undefined instead of null
+}
 
-  const handleImageClick = (imageUrl?: string) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
+  const [openImage, setOpenImage] = useState<string | null>(null);
+
+  const handleImageClick = (imageUrl: string | undefined) => {
     if (imageUrl) {
-      setOpenImage(imageUrl); // Only open if imageUrl is defined
+      setOpenImage(imageUrl);
     }
   };
 
-  const handleClose = () => {
-    setOpenImage(undefined); // Close the dialog by setting openImage to undefined
+  const handleCloseImage = () => {
+    setOpenImage(null);
   };
 
   return (
-    <>
-      <Box
-        sx={{
-          padding: "20px",
-          overflowY: "auto",
-          flexGrow: 1,
-          marginBottom: "120px", // So it doesn't overlap the ChatInput component
-        }}
-      >
-        {messages.map((msg, index) => (
+    <Box sx={{ padding: "10px", overflowY: "auto", flexGrow: 1 }}>
+      {messages.map((msg, index) => (
+        <Paper
+          key={index}
+          sx={{
+            padding: "10px",
+            marginBottom: "10px",
+            backgroundColor: "transparent", // No background color
+            boxShadow: "none", // No shadow or border
+            textAlign: msg.sender === "user" ? "right" : "left",
+          }}
+        >
+          {/* Sender Info */}
           <Box
-            key={index}
             sx={{
               display: "flex",
+              alignItems: "center",
               justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
-              marginBottom: "10px",
             }}
           >
-            <Paper
-              elevation={3}
+            {msg.sender === "user" ? (
+              <>
+                <Typography variant="caption" sx={{ marginRight: "5px" }}>
+                  You
+                </Typography>
+                <PersonIcon fontSize="small" />
+              </>
+            ) : (
+              <>
+                <SmartToyIcon fontSize="small" />
+                <Typography variant="caption" sx={{ marginLeft: "5px" }}>
+                  Copilot
+                </Typography>
+              </>
+            )}
+          </Box>
+
+          {/* Message Text */}
+          <Typography variant="body1" sx={{ marginTop: "5px" }}>
+            {msg.text}
+          </Typography>
+
+          {/* Display Image if present */}
+          {msg.imageUrl && (
+            <Box
+              component="img"
+              src={msg.imageUrl}
+              alt="AI generated"
               sx={{
-                padding: "10px",
-                backgroundColor: msg.sender === "user" ? "#1976d2" : "#f1f1f1",
-                color: msg.sender === "user" ? "#fff" : "#000",
-                maxWidth: "70%",
+                width: "200px",
+                borderRadius: "5px",
+                marginTop: "10px",
+                cursor: "pointer",
+              }}
+              onClick={() => handleImageClick(msg.imageUrl)}
+            />
+          )}
+
+          {/* Display references if they exist */}
+          {msg.references && msg.references.length > 0 && (
+            <Typography
+              variant="caption"
+              sx={{ marginTop: "5px", display: "block", color: "#757575" }}
+            >
+              References:{" "}
+              {msg.references.map((ref, refIndex) => (
+                <span key={refIndex}>
+                  {ref.url ? (
+                    <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                      {ref.title}
+                    </a>
+                  ) : (
+                    ref.title
+                  )}
+                  {/* Check if refIndex is not the last element */}
+                  {refIndex < (msg.references?.length ?? 0) - 1 && ", "}
+                </span>
+              ))}
+            </Typography>
+          )}
+
+          {/* Thumbs Up/Down Feedback */}
+          {msg.sender === "ai" && (
+            <Box
+              sx={{
+                marginTop: "10px",
+                display: "flex",
+                justifyContent: "flex-start",
+                gap: "10px",
               }}
             >
-              <Typography>{msg.text}</Typography>
+              <IconButton
+                color={msg.feedback === "up" ? "primary" : "default"} // Color change on click
+                onClick={() =>
+                  onFeedback(index, msg.feedback === "up" ? null : "up")
+                } // Toggle feedback
+              >
+                <ThumbUpIcon />
+              </IconButton>
+              <IconButton
+                color={msg.feedback === "down" ? "primary" : "default"} // Color change on click
+                onClick={() =>
+                  onFeedback(index, msg.feedback === "down" ? null : "down")
+                } // Toggle feedback
+              >
+                <ThumbDownIcon />
+              </IconButton>
+            </Box>
+          )}
+        </Paper>
+      ))}
 
-              {/* Check if there's an image in the message */}
-              {msg.imageUrl && (
-                <Box
-                  component="img"
-                  src={msg.imageUrl}
-                  alt="chat image"
-                  sx={{
-                    width: "100%",
-                    marginTop: "10px",
-                    cursor: "pointer",
-                    borderRadius: "5px",
-                  }}
-                  onClick={() => handleImageClick(msg.imageUrl)} // imageUrl is guaranteed to exist now
-                />
-              )}
-
-              {/* Thumbs up/down feedback for AI responses */}
-              {msg.sender === "ai" && (
-                <Box sx={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-                  <IconButton
-                    color={msg.feedback === "up" ? "primary" : "default"}
-                    onClick={() =>
-                      onFeedback(index, msg.feedback === "up" ? null : "up")
-                    }
-                  >
-                    <ThumbUpIcon />
-                  </IconButton>
-                  <IconButton
-                    color={msg.feedback === "down" ? "primary" : "default"}
-                    onClick={() =>
-                      onFeedback(index, msg.feedback === "down" ? null : "down")
-                    }
-                  >
-                    <ThumbDownIcon />
-                  </IconButton>
-                </Box>
-              )}
-
-              {/* Display references below AI responses as a comma-separated list */}
-              {msg.references && (
-                <Box sx={{ marginTop: "10px" }}>
-                  <Typography variant="body2" color="textSecondary">
-                    References:{" "}
-                    {msg.references.map((ref, refIndex) => (
-                      <Link
-                        key={refIndex}
-                        href={ref.url}
-                        target="_blank"
-                        rel="noopener"
-                        sx={{
-                          color: "blue",
-                          textDecoration: "underline",
-                          fontSize: "0.85rem",
-                        }}
-                      >
-                        {ref.label}
-                        {refIndex < msg.references!.length - 1 ? ", " : ""}
-                      </Link>
-                    ))}
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-          </Box>
-        ))}
-      </Box>
-
-      {/* Modal Dialog for enlarged image */}
-      <Dialog open={!!openImage} onClose={handleClose} maxWidth="md">
+      {/* Image Modal for Enlarged View */}
+      <Dialog open={!!openImage} onClose={handleCloseImage}>
         <DialogContent>
           <IconButton
-            sx={{ position: "absolute", right: 8, top: 8 }}
-            onClick={handleClose}
+            aria-label="close"
+            onClick={handleCloseImage}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+            }}
           >
             <CloseIcon />
           </IconButton>
-          {openImage && (
-            <Box
-              component="img"
-              src={openImage}
-              alt="enlarged chat image"
-              sx={{
-                width: "100%",
-                borderRadius: "5px",
-              }}
-            />
-          )}
+          <Box
+            component="img"
+            src={openImage || undefined}
+            alt="enlarged chat image"
+            sx={{
+              width: "100%",
+              borderRadius: "5px",
+            }}
+          />
         </DialogContent>
       </Dialog>
-    </>
+    </Box>
   );
 };
 

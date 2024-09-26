@@ -2,69 +2,83 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
 import ChatInput from "./components/ChatInput";
-import ClearChatButton from "./components/ClearChatButton";
 import FeedbackButton from "./components/FeedbackButton";
 import SuggestedPrompts from "./components/SuggestedPrompts";
 import ChatHistory from "./components/ChatHistory";
-
-interface Reference {
-  label: string;
-  url: string;
-}
+import NewTopicButton from "./components/NewTopicButton";
 
 interface Message {
   text: string;
   sender: "user" | "ai";
-  imageUrl?: string; // Optional image URL for AI messages
-  references?: Reference[]; // Optional references
-  feedback?: "up" | "down" | null; // Track thumbs up/down for each message
+  imageUrl?: string;
+  references?: { title: string; url?: string }[];
+  feedback?: "up" | "down" | null;
 }
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [prompts, setPrompts] = useState<string[]>([
-    "Hello",
-    "What can you do?",
-    "Tell me a joke",
+  const [prompts] = useState<string[]>([
+    "Hello! It's going well, thanks. How about yours?",
+    "Hi! Not too bad. What about you?",
+    "Hey! I'm doing great today.",
   ]);
 
   const sendMessage = (message: string) => {
     setMessages([...messages, { text: message, sender: "user" }]);
-    // Simulate AI response with references
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        {
-          text: "Here is a response with some references:",
-          sender: "ai",
-          references: [
-            { label: "Sample Reference 1", url: "https://www.example.com" },
-            { label: "Sample Reference 2", url: "https://www.example.org" },
-          ],
-          feedback: null, // No feedback initially
-        },
+        { text: "Here is a sample AI response.", sender: "ai", feedback: null },
       ]);
     }, 1000);
   };
 
-  const clearChat = () => {
-    setMessages([]);
-  };
-
+  // Handle feedback (thumbs up/down)
   const handleFeedback = (index: number, feedback: "up" | "down" | null) => {
-    setMessages((prev) =>
-      prev.map((msg, i) => (i === index ? { ...msg, feedback } : msg))
-    ); // Update the feedback for the specific message
+    const updatedMessages = messages.map((msg, i) =>
+      i === index ? { ...msg, feedback } : msg
+    );
+    setMessages(updatedMessages);
   };
 
   const handlePromptSelect = (prompt: string) => {
     sendMessage(prompt);
   };
 
+  const handleNewTopic = () => {
+    setMessages([]); // Clear all current messages
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        overflow: "hidden",
+        width: "100%",
+      }}
+    >
       <ChatHistory messages={messages} onFeedback={handleFeedback} />
-      <SuggestedPrompts prompts={prompts} onSelect={handlePromptSelect} />
+
+      {/* Suggested Prompts */}
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: "100px",
+          width: "100%",
+          overflowX: "auto",
+          padding: "10px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <SuggestedPrompts prompts={prompts} onSelect={handlePromptSelect} />
+      </Box>
+
+      {/* Chat Input Area */}
       <Box
         sx={{
           position: "fixed",
@@ -72,16 +86,37 @@ const App: React.FC = () => {
           width: "100%",
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
           padding: "10px",
           backgroundColor: "#fff",
-          boxShadow: "0 -2px 5px rgba(0,0,0,0.1)",
+          overflow: "hidden",
         }}
       >
-        <ClearChatButton onClear={clearChat} />
-        <Box sx={{ flexGrow: 1, marginLeft: "10px", marginRight: "10px" }}>
-          <ChatInput onSend={sendMessage} />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: "900px",
+            gap: "5px",
+            padding: "0 10px",
+          }}
+        >
+          <Box sx={{ flexShrink: 0, marginRight: "10px" }}>
+            <NewTopicButton onNewTopic={handleNewTopic} />
+          </Box>
+
+          {/* Centered Chat Input */}
+          <Box sx={{ flexGrow: 1, minWidth: "100px", maxWidth: "600px" }}>
+            <ChatInput onSend={sendMessage} />
+          </Box>
+
+          {/* Feedback Button */}
+          <Box sx={{ flexShrink: 0 }}>
+            <FeedbackButton />
+          </Box>
         </Box>
-        <FeedbackButton />
       </Box>
     </div>
   );

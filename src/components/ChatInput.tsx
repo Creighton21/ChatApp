@@ -1,6 +1,6 @@
 // src/components/ChatInput.tsx
 import React, { useState } from "react";
-import { Box, TextField, IconButton } from "@mui/material";
+import { Box, TextField, IconButton, InputAdornment } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 const ChatInput: React.FC<{ onSend: (message: string) => void }> = ({
@@ -23,21 +23,27 @@ const ChatInput: React.FC<{ onSend: (message: string) => void }> = ({
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
       <TextField
         fullWidth
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message..."
+        placeholder="Ask me anything..."
         onKeyDown={handleKeyPress} // Handle Enter key press
+        InputProps={{
+          sx: {
+            borderRadius: "20px", // Rounded corners
+            padding: "10px",
+          },
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleSend} disabled={!message.trim()}>
+                <SendIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
       />
-      <IconButton
-        onClick={handleSend}
-        color="primary"
-        disabled={!message.trim()}
-      >
-        <SendIcon />
-      </IconButton>
     </Box>
   );
 };

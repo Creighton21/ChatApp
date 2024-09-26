@@ -1,7 +1,7 @@
 // src/components/FeedbackButton.tsx
 import React from "react";
 import { Button } from "@mui/material";
-import OutboundIcon from "@mui/icons-material/Outbound";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 
 const FeedbackButton: React.FC = () => {
   const handleFeedback = () => {
@@ -10,11 +10,20 @@ const FeedbackButton: React.FC = () => {
 
   return (
     <Button
-      variant="contained"
-      color="secondary"
-      endIcon={<OutboundIcon />}
+      variant="outlined"
+      startIcon={<ChatBubbleOutlineIcon />}
+      sx={{
+        position: "fixed",
+        bottom: "10px",
+        right: "10px",
+        borderRadius: "20px",
+        fontSize: "0.75rem",
+        padding: "5px 10px",
+        borderColor: "blue",
+        color: "blue",
+        textTransform: "none",
+      }}
       onClick={handleFeedback}
-      sx={{ flexShrink: 0, marginRight: "20px" }} // Ensure button does not shrink
     >
       Feedback
     </Button>
