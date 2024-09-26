@@ -14,6 +14,7 @@
     "@types/react": "^18.3.9",
     "@types/react-dom": "^18.3.0",
     "axios": "^1.7.7",
+    "pdfjs-dist": "^4.6.82",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-pdf": "^9.1.1",
@@ -47,8 +48,9 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
     "@testing-library/react": "^16.0.1",
-    "jest": "^27.5.1",
-    "@babel/plugin-proposal-private-property-in-object": "^7.16.7"
+    "file-loader": "^6.2.0",
+    "jest": "^27.5.1"
   }
 }

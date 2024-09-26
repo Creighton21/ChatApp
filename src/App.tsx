@@ -8,12 +8,12 @@ import NewTopicButton from "./components/NewTopicButton";
 
 interface Reference {
   title: string;
-  url?: string; // Optional URL if the reference is a clickable link
+  documentUrl: string;
 }
 
 interface ImageData {
   url: string;
-  source: string; // Source of the image (e.g., "success.com")
+  source: string;
 }
 
 interface Message {
@@ -58,12 +58,12 @@ const App: React.FC = () => {
         ],
         references: [
           {
-            title: "Unsplash Nature Collection",
-            url: "https://unsplash.com/s/photos/nature",
+            title: "Source 1",
+            documentUrl: "1.pdf",
           },
           {
-            title: "Wikipedia - Nature",
-            url: "https://en.wikipedia.org/wiki/Nature",
+            title: "Source 2",
+            documentUrl: "2.pdf",
           },
         ],
         feedback: null,

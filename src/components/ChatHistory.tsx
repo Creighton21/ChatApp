@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   IconButton,
@@ -13,10 +13,11 @@ import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import PersonIcon from "@mui/icons-material/Person"; // Icon for the user
 import RedditIcon from "@mui/icons-material/Reddit"; // Icon for AI (Copilot)
 import CloseIcon from "@mui/icons-material/Close";
+import PDFViewer from "./PDFViewer"; // Import the PDFViewer component
 
 interface Reference {
   title: string;
-  url?: string;
+  documentUrl?: string; // Optional URL for the document (replaces the regular web URL)
 }
 
 interface ImageData {
@@ -39,6 +40,7 @@ interface ChatHistoryProps {
 
 const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
   const [openImage, setOpenImage] = useState<string | null>(null);
+  const [openPDF, setOpenPDF] = useState<string | null>(null); // State to track which document is open
 
   // Create a reference for the last message
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -48,7 +50,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]); // Effect runs every time the messages array is updated
+  }, [messages]);
 
   const handleImageClick = (imageUrl: string | undefined) => {
     if (imageUrl) {
@@ -60,6 +62,16 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
     setOpenImage(null);
   };
 
+  const handleReferenceClick = (documentUrl: string | undefined) => {
+    if (documentUrl) {
+      setOpenPDF(documentUrl); // Open the PDF when a reference is clicked
+    }
+  };
+
+  const handleClosePDF = () => {
+    setOpenPDF(null); // Close the PDF modal
+  };
+
   return (
     <Box
       sx={{
@@ -67,7 +79,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
         overflowY: "auto",
         flexGrow: 1,
         height: "100%",
-        paddingBottom: "175px", // Reserve space for input and suggestions
+        paddingBottom: "150px", // Reserve space for input and suggestions
       }}
     >
       {messages.map((msg, index) => (
@@ -128,10 +140,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 <Chip
                   key={refIndex}
                   label={`${refIndex + 1} ${ref.title}`}
-                  component="a"
-                  href={ref.url}
+                  onClick={() => handleReferenceClick(ref.documentUrl)} // Handle PDF click
                   clickable
-                  target="_blank"
                   sx={{
                     fontSize: "12px",
                     padding: "0 5px",
@@ -183,7 +193,6 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 padding: "10px",
                 marginTop: "15px",
                 borderRadius: "5px",
-                width: "60%",
               }}
             >
               {/* Display images in a grid */}
@@ -215,6 +224,25 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                         objectFit: "cover",
                       }}
                     />
+                    {/* Number overlay on image */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        color: "#fff",
+                        borderRadius: "50%",
+                        width: "20px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {imgIndex + 1}
+                    </Box>
                   </Box>
                 ))}
               </Box>
@@ -274,6 +302,24 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
               borderRadius: "5px",
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Viewer Modal for Document References */}
+      <Dialog open={!!openPDF} onClose={handleClosePDF} maxWidth="md" fullWidth>
+        <DialogContent>
+          <IconButton
+            aria-label="close"
+            onClick={handleClosePDF}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {openPDF && <PDFViewer src={openPDF} />}
         </DialogContent>
       </Dialog>
     </Box>
