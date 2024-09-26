@@ -1,4 +1,3 @@
-// src/components/ChatHistory.tsx
 import React, { useState } from "react";
 import {
   Box,
@@ -7,24 +6,30 @@ import {
   Paper,
   Dialog,
   DialogContent,
+  Chip,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import PersonIcon from "@mui/icons-material/Person"; // Icon for the user
-import SmartToyIcon from "@mui/icons-material/SmartToy"; // Icon for AI (Copilot)
+import RedditIcon from "@mui/icons-material/Reddit"; // Icon for AI (Copilot)
 import CloseIcon from "@mui/icons-material/Close";
 
 interface Reference {
   title: string;
-  url?: string; // Optional URL if the reference is a clickable link
+  url?: string;
+}
+
+interface ImageData {
+  url: string;
+  source: string;
 }
 
 interface Message {
   text: string;
   sender: "user" | "ai";
-  imageUrl?: string; // Optional image URL for AI messages
-  references?: Reference[]; // Optional references
-  feedback?: "up" | "down" | null; // Track thumbs up/down for each message
+  imageList?: ImageData[];
+  references?: Reference[];
+  feedback?: "up" | "down" | null;
 }
 
 interface ChatHistoryProps {
@@ -53,8 +58,8 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
           sx={{
             padding: "10px",
             marginBottom: "10px",
-            backgroundColor: "transparent", // No background color
-            boxShadow: "none", // No shadow or border
+            backgroundColor: "transparent",
+            boxShadow: "none",
             textAlign: msg.sender === "user" ? "right" : "left",
           }}
         >
@@ -68,15 +73,21 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
           >
             {msg.sender === "user" ? (
               <>
-                <Typography variant="caption" sx={{ marginRight: "5px" }}>
+                <Typography
+                  variant="caption"
+                  sx={{ marginRight: "5px", fontWeight: "bold", fontSize: 16 }}
+                >
                   You
                 </Typography>
-                <PersonIcon fontSize="small" />
+                <PersonIcon sx={{ fontSize: 24 }} />
               </>
             ) : (
               <>
-                <SmartToyIcon fontSize="small" />
-                <Typography variant="caption" sx={{ marginLeft: "5px" }}>
+                <RedditIcon sx={{ fontSize: 24 }} />
+                <Typography
+                  variant="caption"
+                  sx={{ marginLeft: "5px", fontWeight: "bold", fontSize: 16 }}
+                >
                   Copilot
                 </Typography>
               </>
@@ -88,43 +99,30 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
             {msg.text}
           </Typography>
 
-          {/* Display Image if present */}
-          {msg.imageUrl && (
-            <Box
-              component="img"
-              src={msg.imageUrl}
-              alt="AI generated"
-              sx={{
-                width: "200px",
-                borderRadius: "5px",
-                marginTop: "10px",
-                cursor: "pointer",
-              }}
-              onClick={() => handleImageClick(msg.imageUrl)}
-            />
-          )}
-
-          {/* Display references if they exist */}
+          {/* Display References */}
           {msg.references && msg.references.length > 0 && (
-            <Typography
-              variant="caption"
-              sx={{ marginTop: "5px", display: "block", color: "#757575" }}
-            >
-              References:{" "}
+            <Box sx={{ marginTop: "5px" }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                References:
+              </Typography>
               {msg.references.map((ref, refIndex) => (
-                <span key={refIndex}>
-                  {ref.url ? (
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                      {ref.title}
-                    </a>
-                  ) : (
-                    ref.title
-                  )}
-                  {/* Check if refIndex is not the last element */}
-                  {refIndex < (msg.references?.length ?? 0) - 1 && ", "}
-                </span>
+                <Chip
+                  key={refIndex}
+                  label={`${refIndex + 1} ${ref.title}`}
+                  component="a"
+                  href={ref.url}
+                  clickable
+                  target="_blank"
+                  sx={{
+                    fontSize: "12px",
+                    padding: "0 5px",
+                    borderRadius: "5px",
+                    border: "1px solid #e0e0e0",
+                    margin: "3px",
+                  }}
+                />
               ))}
-            </Typography>
+            </Box>
           )}
 
           {/* Thumbs Up/Down Feedback */}
@@ -138,21 +136,97 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
               }}
             >
               <IconButton
-                color={msg.feedback === "up" ? "primary" : "default"} // Color change on click
+                color={msg.feedback === "up" ? "primary" : "default"}
                 onClick={() =>
                   onFeedback(index, msg.feedback === "up" ? null : "up")
-                } // Toggle feedback
+                }
+                sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbUpIcon />
+                <ThumbUpIcon sx={{ fontSize: 18 }} />
               </IconButton>
               <IconButton
-                color={msg.feedback === "down" ? "primary" : "default"} // Color change on click
+                color={msg.feedback === "down" ? "primary" : "default"}
                 onClick={() =>
                   onFeedback(index, msg.feedback === "down" ? null : "down")
-                } // Toggle feedback
+                }
+                sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbDownIcon />
+                <ThumbDownIcon sx={{ fontSize: 18 }} />
               </IconButton>
+            </Box>
+          )}
+
+          {/* Image Box with a border */}
+          {msg.imageList && (
+            <Box
+              sx={{
+                border: "1px solid #e0e0e0",
+                padding: "10px",
+                marginTop: "15px",
+                borderRadius: "5px",
+                width: "75%",
+              }}
+            >
+              {/* Display images in a grid */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
+                  gap: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                {msg.imageList.map((image, imgIndex) => (
+                  <Box
+                    key={imgIndex}
+                    sx={{
+                      position: "relative",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleImageClick(image.url)}
+                  >
+                    <Box
+                      component="img"
+                      src={image.url}
+                      alt={`Image ${imgIndex + 1}`}
+                      sx={{
+                        width: "100px",
+                        height: "100px",
+                        borderRadius: "5px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Image References */}
+              <Box
+                sx={{
+                  marginTop: "10px",
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "5px",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ marginRight: "10px", fontWeight: "bold" }}
+                >
+                  Image Sources:
+                </Typography>
+                {msg.imageList.map((image, imgIndex) => (
+                  <Chip
+                    key={imgIndex}
+                    label={`${imgIndex + 1}. ${image.source}`}
+                    sx={{
+                      fontSize: "12px",
+                      padding: "0 5px",
+                      borderRadius: "5px",
+                    }}
+                  />
+                ))}
+              </Box>
             </Box>
           )}
         </Paper>
