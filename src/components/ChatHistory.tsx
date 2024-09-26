@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   IconButton,
@@ -40,6 +40,16 @@ interface ChatHistoryProps {
 const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
   const [openImage, setOpenImage] = useState<string | null>(null);
 
+  // Create a reference for the last message
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
+
+  // Smooth scrolling to the last message when messages are updated
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]); // Effect runs every time the messages array is updated
+
   const handleImageClick = (imageUrl: string | undefined) => {
     if (imageUrl) {
       setOpenImage(imageUrl);
@@ -51,7 +61,15 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
   };
 
   return (
-    <Box sx={{ padding: "10px", overflowY: "auto", flexGrow: 1 }}>
+    <Box
+      sx={{
+        padding: "10px",
+        overflowY: "auto",
+        flexGrow: 1,
+        height: "100%",
+        paddingBottom: "175px", // Reserve space for input and suggestions
+      }}
+    >
       {messages.map((msg, index) => (
         <Paper
           key={index}
@@ -62,6 +80,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
             boxShadow: "none",
             textAlign: msg.sender === "user" ? "right" : "left",
           }}
+          ref={index === messages.length - 1 ? lastMessageRef : null} // Attach ref to last message
         >
           {/* Sender Info */}
           <Box
@@ -142,7 +161,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 }
                 sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbUpIcon sx={{ fontSize: 18 }} />
+                <ThumbUpIcon />
               </IconButton>
               <IconButton
                 color={msg.feedback === "down" ? "primary" : "default"}
@@ -151,7 +170,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 }
                 sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbDownIcon sx={{ fontSize: 18 }} />
+                <ThumbDownIcon />
               </IconButton>
             </Box>
           )}
@@ -164,7 +183,6 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 padding: "10px",
                 marginTop: "15px",
                 borderRadius: "5px",
-                width: "75%",
               }}
             >
               {/* Display images in a grid */}
