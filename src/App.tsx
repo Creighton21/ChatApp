@@ -32,12 +32,9 @@ const App: React.FC = () => {
     "Hey! I'm doing great today.",
   ]);
 
-  // Function to simulate sending a message
   const sendMessage = (message: string) => {
-    // Add user's message
     setMessages([...messages, { text: message, sender: "user" }]);
 
-    // Simulate AI response with the image and references
     setTimeout(() => {
       const aiResponse: Message = {
         text: "Here are some images for your inspiration.",
@@ -84,79 +81,121 @@ const App: React.FC = () => {
   };
 
   const handleNewTopic = () => {
-    setMessages([]); // Clear all current messages
+    setMessages([]);
   };
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
-        flexDirection: "column",
+        justifyContent: "center",
         height: "100vh",
         overflow: "hidden",
+        padding: 0,
         width: "100%",
+        backgroundColor: "#f5f5f5",
       }}
     >
-      <ChatHistory messages={messages} onFeedback={handleFeedback} />
-
-      {/* Suggested Prompts */}
       <Box
         sx={{
-          position: "absolute",
-          bottom: "100px",
-          width: "100%",
-          overflowX: "auto",
-          padding: "10px",
           display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          whiteSpace: "nowrap",
+          flexDirection: "column",
+          width: "100%",
+          maxWidth: "1200px",
+          margin: 0,
+          padding: 0,
         }}
       >
-        <SuggestedPrompts prompts={prompts} onSelect={handlePromptSelect} />
-      </Box>
-
-      {/* Chat Input Area */}
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "10px",
-          backgroundColor: "#fff",
-          overflow: "hidden",
-        }}
-      >
+        {/* Main Chat Area */}
         <Box
           sx={{
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            boxSizing: "border-box",
+            padding: "20px",
+            paddingBottom: "200px", // Increased padding to make space for prompts
+          }}
+        >
+          {/* Chat History */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflowY: "scroll",
+              maxHeight: "calc(100vh - 300px)", // Adjusted height to make room for suggested prompts
+              "&::-webkit-scrollbar": { display: "none" },
+              "-ms-overflow-style": "none",
+              scrollbarWidth: "none",
+            }}
+          >
+            <ChatHistory messages={messages} onFeedback={handleFeedback} />
+          </Box>
+
+          {/* Suggested Prompts */}
+          <Box
+            sx={{
+              width: "100%",
+              padding: "10px 0",
+              display: "flex",
+              justifyContent: "center",
+              gap: "10px",
+              flexWrap: "wrap", // Enable wrapping of prompts
+              position: "fixed", // Fix position above the chat input
+              bottom: "80px", // Adjusted to be above the chat input area
+              left: "50%",
+              transform: "translateX(-50%)", // Center horizontally
+              zIndex: 2, // Ensure it stays above other components
+            }}
+          >
+            <SuggestedPrompts prompts={prompts} onSelect={handlePromptSelect} />
+          </Box>
+        </Box>
+
+        {/* Chat Input Area */}
+        <Box
+          sx={{
+            width: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: "100%",
-            maxWidth: "900px",
-            gap: "5px",
-            padding: "0 10px",
+            padding: "15px 0",
+            backgroundColor: "#f5f5f5",
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            zIndex: 1, // Ensure chat input stays above the chat history
           }}
         >
-          <Box sx={{ flexShrink: 0, marginRight: "10px" }}>
+          {/* Input Area Container */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              maxWidth: "900px",
+              gap: "10px",
+            }}
+          >
             <NewTopicButton onNewTopic={handleNewTopic} />
-          </Box>
 
-          {/* Centered Chat Input */}
-          <Box sx={{ flexGrow: 1, minWidth: "100px", maxWidth: "600px" }}>
-            <ChatInput onSend={sendMessage} />
-          </Box>
+            {/* Centered Chat Input */}
+            <Box
+              sx={{
+                flexGrow: 1,
+                minWidth: "300px",
+                maxWidth: "600px",
+                margin: "0 0",
+              }}
+            >
+              <ChatInput onSend={sendMessage} />
+            </Box>
 
-          {/* Feedback Button */}
-          <Box sx={{ flexShrink: 0 }}>
             <FeedbackButton />
           </Box>
         </Box>
       </Box>
-    </div>
+    </Box>
   );
 };
 

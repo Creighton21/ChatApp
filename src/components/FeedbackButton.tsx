@@ -13,9 +13,6 @@ const FeedbackButton: React.FC = () => {
       variant="outlined"
       startIcon={<ChatBubbleOutlineIcon />}
       sx={{
-        position: "fixed",
-        bottom: "10px",
-        right: "10px",
         borderRadius: "20px",
         fontSize: "0.75rem",
         padding: "5px 10px",

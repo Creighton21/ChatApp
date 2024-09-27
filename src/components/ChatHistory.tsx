@@ -10,14 +10,14 @@ import {
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
-import PersonIcon from "@mui/icons-material/Person"; // Icon for the user
-import RedditIcon from "@mui/icons-material/Reddit"; // Icon for AI (Copilot)
+import PersonIcon from "@mui/icons-material/Person";
+import RedditIcon from "@mui/icons-material/Reddit";
 import CloseIcon from "@mui/icons-material/Close";
-import PDFViewer from "./PDFViewer"; // Import the PDFViewer component
+import PDFViewer from "./PDFViewer";
 
 interface Reference {
   title: string;
-  documentUrl?: string; // Optional URL for the document (replaces the regular web URL)
+  documentUrl?: string;
 }
 
 interface ImageData {
@@ -40,12 +40,10 @@ interface ChatHistoryProps {
 
 const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
   const [openImage, setOpenImage] = useState<string | null>(null);
-  const [openPDF, setOpenPDF] = useState<string | null>(null); // State to track which document is open
+  const [openPDF, setOpenPDF] = useState<string | null>(null);
 
-  // Create a reference for the last message
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
-  // Smooth scrolling to the last message when messages are updated
   useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
@@ -64,22 +62,30 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
 
   const handleReferenceClick = (documentUrl: string | undefined) => {
     if (documentUrl) {
-      setOpenPDF(documentUrl); // Open the PDF when a reference is clicked
+      setOpenPDF(documentUrl);
     }
   };
 
   const handleClosePDF = () => {
-    setOpenPDF(null); // Close the PDF modal
+    setOpenPDF(null);
   };
 
   return (
     <Box
       sx={{
         padding: "10px",
-        overflowY: "auto",
+        overflowY: "scroll",
         flexGrow: 1,
         height: "100%",
-        paddingBottom: "150px", // Reserve space for input and suggestions
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        marginLeft: "80px",
+        // Hide scrollbar
+        "&::-webkit-scrollbar": { width: 0, background: "transparent" }, // Chrome, Safari
+        "&::-webkit-scrollbar-thumb": { background: "transparent" }, // Chrome, Safari
+        "-ms-overflow-style": "none", // IE and Edge
+        scrollbarWidth: "none", // Firefox
       }}
     >
       {messages.map((msg, index) => (
@@ -87,37 +93,40 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
           key={index}
           sx={{
             padding: "10px",
+            paddingBottom: "50px",
             marginBottom: "10px",
             backgroundColor: "transparent",
             boxShadow: "none",
-            textAlign: msg.sender === "user" ? "right" : "left",
+            textAlign: "left",
+            width: "70%", // Adjust to limit message width
+            display: "flex",
+            flexDirection: "column",
           }}
-          ref={index === messages.length - 1 ? lastMessageRef : null} // Attach ref to last message
+          ref={index === messages.length - 1 ? lastMessageRef : null}
         >
           {/* Sender Info */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
             }}
           >
             {msg.sender === "user" ? (
               <>
                 <Typography
                   variant="caption"
-                  sx={{ marginRight: "5px", fontWeight: "bold", fontSize: 16 }}
+                  sx={{ marginRight: "5px", fontWeight: "bold", fontSize: 18 }}
                 >
                   You
                 </Typography>
-                <PersonIcon sx={{ fontSize: 24 }} />
+                <PersonIcon sx={{ fontSize: 28 }} /> {/* Larger User Icon */}
               </>
             ) : (
               <>
-                <RedditIcon sx={{ fontSize: 24 }} />
+                <RedditIcon sx={{ fontSize: 28 }} /> {/* Larger AI Icon */}
                 <Typography
                   variant="caption"
-                  sx={{ marginLeft: "5px", fontWeight: "bold", fontSize: 16 }}
+                  sx={{ marginLeft: "5px", fontWeight: "bold", fontSize: 18 }}
                 >
                   Copilot
                 </Typography>
@@ -140,7 +149,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 <Chip
                   key={refIndex}
                   label={`${refIndex + 1} ${ref.title}`}
-                  onClick={() => handleReferenceClick(ref.documentUrl)} // Handle PDF click
+                  onClick={() => handleReferenceClick(ref.documentUrl)}
                   clickable
                   sx={{
                     fontSize: "12px",
@@ -224,25 +233,6 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                         objectFit: "cover",
                       }}
                     />
-                    {/* Number overlay on image */}
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        backgroundColor: "rgba(0, 0, 0, 0.6)",
-                        color: "#fff",
-                        borderRadius: "50%",
-                        width: "20px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "12px",
-                      }}
-                    >
-                      {imgIndex + 1}
-                    </Box>
                   </Box>
                 ))}
               </Box>

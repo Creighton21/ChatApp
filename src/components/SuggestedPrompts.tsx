@@ -12,8 +12,8 @@ const SuggestedPrompts: React.FC<{
         display: "flex",
         gap: "10px",
         padding: "5px",
-        overflowX: "auto", // Scroll within the prompt area if necessary
-        whiteSpace: "nowrap", // Prevent prompts from wrapping and causing overflow
+        flexWrap: "wrap", // Enable wrapping of prompts
+        justifyContent: "center", // Center the wrapped prompts
       }}
     >
       {prompts.map((prompt, index) => (
@@ -28,6 +28,7 @@ const SuggestedPrompts: React.FC<{
             borderColor: "blue",
             fontSize: "0.85rem",
             padding: "5px 10px",
+            whiteSpace: "normal", // Allow text to wrap within the button
           }}
         >
           {prompt}

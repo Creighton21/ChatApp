@@ -34,6 +34,7 @@ const ChatInput: React.FC<{ onSend: (message: string) => void }> = ({
           sx: {
             borderRadius: "20px", // Rounded corners
             padding: "10px",
+            backgroundColor: "#fff", // White background
           },
           endAdornment: (
             <InputAdornment position="end">
