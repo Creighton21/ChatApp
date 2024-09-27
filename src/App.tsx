@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
+import axios from "axios"; // Import axios for API calls
 import ChatInput from "./components/ChatInput";
 import FeedbackButton from "./components/FeedbackButton";
 import SuggestedPrompts from "./components/SuggestedPrompts";
@@ -8,7 +9,7 @@ import NewTopicButton from "./components/NewTopicButton";
 
 interface Reference {
   title: string;
-  documentUrl: string; // URL for the PDF document
+  documentUrl: string;
 }
 
 interface ImageData {
@@ -32,41 +33,36 @@ const App: React.FC = () => {
     "Hey! I'm doing great today.",
   ]);
 
-  const sendMessage = (message: string) => {
-    setMessages([...messages, { text: message, sender: "user" }]);
+  // Function to send a message to the backend
+  const sendMessage = async (message: string) => {
+    // Add user's message to chat history
+    const newMessage: Message = { text: message, sender: "user" };
+    setMessages([...messages, newMessage]);
 
-    setTimeout(() => {
+    // Create the payload for the backend with message and history
+    const payload = {
+      message,
+      history: messages,
+    };
+
+    try {
+      // Make a POST request to the FastAPI backend
+      const response = await axios.post("http://localhost:8000/chat", payload);
+
+      // Assume the response structure from FastAPI is similar to the `Message` interface
       const aiResponse: Message = {
-        text: "Here are some images for your inspiration.",
+        text: response.data.text,
         sender: "ai",
-        imageList: [
-          {
-            url: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjI2NzQ4NzMz&ixlib=rb-1.2.1&q=80&w=400",
-            source: "source1.com",
-          },
-          {
-            url: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjI2NzQ4NzMz&ixlib=rb-1.2.1&q=80&w=400",
-            source: "source2.com",
-          },
-          {
-            url: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjI2NzQ4NzMz&ixlib=rb-1.2.1&q=80&w=400",
-            source: "source3.com",
-          },
-        ],
-        references: [
-          {
-            title: "Source 1",
-            documentUrl: "https://arxiv.org/pdf/2401.00002", // Updated with external URL
-          },
-          {
-            title: "Source 2",
-            documentUrl: "https://arxiv.org/pdf/2401.00002", // Updated with external URL
-          },
-        ],
+        imageList: response.data.imageList,
+        references: response.data.references,
         feedback: null,
       };
+
+      // Update the chat history with the AI response
       setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
+    } catch (error) {
+      console.error("Failed to send message to the backend", error);
+    }
   };
 
   const handleFeedback = (index: number, feedback: "up" | "down" | null) => {
@@ -106,7 +102,6 @@ const App: React.FC = () => {
           padding: 0,
         }}
       >
-        {/* Main Chat Area */}
         <Box
           sx={{
             flexGrow: 1,
@@ -117,7 +112,6 @@ const App: React.FC = () => {
             paddingBottom: "200px",
           }}
         >
-          {/* Chat History */}
           <Box
             sx={{
               flexGrow: 1,
@@ -131,7 +125,6 @@ const App: React.FC = () => {
             <ChatHistory messages={messages} onFeedback={handleFeedback} />
           </Box>
 
-          {/* Suggested Prompts */}
           <Box
             sx={{
               width: "100%",
@@ -151,7 +144,6 @@ const App: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Chat Input Area */}
         <Box
           sx={{
             width: "100%",
@@ -177,6 +169,7 @@ const App: React.FC = () => {
             }}
           >
             <NewTopicButton onNewTopic={handleNewTopic} />
+
             <Box
               sx={{
                 flexGrow: 1,
@@ -187,6 +180,7 @@ const App: React.FC = () => {
             >
               <ChatInput onSend={sendMessage} />
             </Box>
+
             <FeedbackButton />
           </Box>
         </Box>

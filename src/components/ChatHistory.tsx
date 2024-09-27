@@ -113,17 +113,17 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
           >
             {msg.sender === "user" ? (
               <>
+                <PersonIcon sx={{ fontSize: 28 }} />
                 <Typography
                   variant="caption"
                   sx={{ marginRight: "5px", fontWeight: "bold", fontSize: 18 }}
                 >
                   You
                 </Typography>
-                <PersonIcon sx={{ fontSize: 28 }} /> {/* Larger User Icon */}
               </>
             ) : (
               <>
-                <RedditIcon sx={{ fontSize: 28 }} /> {/* Larger AI Icon */}
+                <RedditIcon sx={{ fontSize: 28 }} />
                 <Typography
                   variant="caption"
                   sx={{ marginLeft: "5px", fontWeight: "bold", fontSize: 18 }}
@@ -178,18 +178,16 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, onFeedback }) => {
                 onClick={() =>
                   onFeedback(index, msg.feedback === "up" ? null : "up")
                 }
-                sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbUpIcon />
+                <ThumbUpIcon sx={{ fontSize: "18px" }} />
               </IconButton>
               <IconButton
                 color={msg.feedback === "down" ? "primary" : "default"}
                 onClick={() =>
                   onFeedback(index, msg.feedback === "down" ? null : "down")
                 }
-                sx={{ fontSize: "18px" }} // Smaller thumbs icons
               >
-                <ThumbDownIcon />
+                <ThumbDownIcon sx={{ fontSize: "18px" }} />
               </IconButton>
             </Box>
           )}
