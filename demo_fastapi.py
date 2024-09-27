@@ -13,6 +13,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Define initial suggested prompts
+initial_suggested_prompts = [
+    "Hello! How can I assist you today?",
+    "What can I help you with?",
+    "Feel free to ask me anything.",
+]
+
+@app.get("/suggested_prompts")
+async def get_suggested_prompts():
+    return {"suggestedPrompts": initial_suggested_prompts}
+
 @app.post("/chat")
 async def chat_endpoint(request: Request):
     data = await request.json()
@@ -30,6 +41,11 @@ async def chat_endpoint(request: Request):
         "references": [
             {"title": "Reference 1", "documentUrl": "https://arxiv.org/pdf/2401.00002"},
             {"title": "Reference 2", "documentUrl": "https://arxiv.org/pdf/2401.00002"}
+        ],
+        "suggestedPrompts": [
+            "How can I help you with this topic?",
+            "Would you like to learn more about this?",
+            "Feel free to ask more questions."
         ]
     }
     return ai_response

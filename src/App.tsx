@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import axios from "axios"; // Import axios for API calls
 import ChatInput from "./components/ChatInput";
@@ -27,29 +27,39 @@ interface Message {
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [prompts] = useState<string[]>([
-    "Hello! It's going well, thanks. How about yours?",
-    "Hi! Not too bad. What about you?",
-    "Hey! I'm doing great today.",
-  ]);
+  const [prompts, setPrompts] = useState<string[]>([]); // State for suggested prompts
+
+  useEffect(() => {
+    // Load initial suggested prompts when the component mounts
+    fetchSuggestedPrompts();
+  }, []);
+
+  // Function to fetch suggested prompts from the backend
+  const fetchSuggestedPrompts = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/suggested_prompts"
+      );
+      setPrompts(response.data.suggestedPrompts);
+    } catch (error) {
+      console.error("Failed to load suggested prompts", error);
+    }
+  };
 
   // Function to send a message to the backend
   const sendMessage = async (message: string) => {
-    // Add user's message to chat history
     const newMessage: Message = { text: message, sender: "user" };
     setMessages([...messages, newMessage]);
 
-    // Create the payload for the backend with message and history
     const payload = {
       message,
       history: messages,
     };
 
     try {
-      // Make a POST request to the FastAPI backend
+      // Send message and history to FastAPI and receive response
       const response = await axios.post("http://localhost:8000/chat", payload);
 
-      // Assume the response structure from FastAPI is similar to the `Message` interface
       const aiResponse: Message = {
         text: response.data.text,
         sender: "ai",
@@ -58,13 +68,19 @@ const App: React.FC = () => {
         feedback: null,
       };
 
-      // Update the chat history with the AI response
+      // Update chat history and new suggested prompts
       setMessages((prev) => [...prev, aiResponse]);
+
+      // Update suggested prompts with the ones from AI response
+      if (response.data.suggestedPrompts) {
+        setPrompts(response.data.suggestedPrompts);
+      }
     } catch (error) {
       console.error("Failed to send message to the backend", error);
     }
   };
 
+  // Function to handle feedback click events
   const handleFeedback = (index: number, feedback: "up" | "down" | null) => {
     const updatedMessages = messages.map((msg, i) =>
       i === index ? { ...msg, feedback } : msg
@@ -72,12 +88,15 @@ const App: React.FC = () => {
     setMessages(updatedMessages);
   };
 
+  // Handle prompt selection
   const handlePromptSelect = (prompt: string) => {
     sendMessage(prompt);
   };
 
+  // Handle new topic button click
   const handleNewTopic = () => {
-    setMessages([]);
+    setMessages([]); // Clear current chat history
+    fetchSuggestedPrompts(); // Fetch new suggested prompts
   };
 
   return (
@@ -109,7 +128,7 @@ const App: React.FC = () => {
             flexDirection: "column",
             boxSizing: "border-box",
             padding: "20px",
-            paddingBottom: "200px",
+            paddingBottom: "200px", // Reserve space for suggested prompts
           }}
         >
           <Box
@@ -125,6 +144,7 @@ const App: React.FC = () => {
             <ChatHistory messages={messages} onFeedback={handleFeedback} />
           </Box>
 
+          {/* Suggested Prompts */}
           <Box
             sx={{
               width: "100%",
@@ -144,6 +164,7 @@ const App: React.FC = () => {
           </Box>
         </Box>
 
+        {/* Chat Input Area */}
         <Box
           sx={{
             width: "100%",
@@ -170,6 +191,7 @@ const App: React.FC = () => {
           >
             <NewTopicButton onNewTopic={handleNewTopic} />
 
+            {/* Centered Chat Input */}
             <Box
               sx={{
                 flexGrow: 1,
