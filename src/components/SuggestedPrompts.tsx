@@ -14,6 +14,7 @@ const SuggestedPrompts: React.FC<{
         padding: "5px",
         flexWrap: "wrap", // Enable wrapping of prompts
         justifyContent: "center", // Center the wrapped prompts
+        paddingBottom: "10px",
       }}
     >
       {prompts.map((prompt, index) => (

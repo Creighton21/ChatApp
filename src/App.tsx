@@ -8,7 +8,7 @@ import NewTopicButton from "./components/NewTopicButton";
 
 interface Reference {
   title: string;
-  documentUrl: string;
+  documentUrl: string; // URL for the PDF document
 }
 
 interface ImageData {
@@ -56,11 +56,11 @@ const App: React.FC = () => {
         references: [
           {
             title: "Source 1",
-            documentUrl: "1.pdf",
+            documentUrl: "https://arxiv.org/pdf/2401.00002", // Updated with external URL
           },
           {
             title: "Source 2",
-            documentUrl: "2.pdf",
+            documentUrl: "https://arxiv.org/pdf/2401.00002", // Updated with external URL
           },
         ],
         feedback: null,
@@ -114,7 +114,7 @@ const App: React.FC = () => {
             flexDirection: "column",
             boxSizing: "border-box",
             padding: "20px",
-            paddingBottom: "200px", // Increased padding to make space for prompts
+            paddingBottom: "200px",
           }}
         >
           {/* Chat History */}
@@ -122,7 +122,7 @@ const App: React.FC = () => {
             sx={{
               flexGrow: 1,
               overflowY: "scroll",
-              maxHeight: "calc(100vh - 300px)", // Adjusted height to make room for suggested prompts
+              maxHeight: "calc(100vh - 300px)",
               "&::-webkit-scrollbar": { display: "none" },
               "-ms-overflow-style": "none",
               scrollbarWidth: "none",
@@ -139,12 +139,12 @@ const App: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               gap: "10px",
-              flexWrap: "wrap", // Enable wrapping of prompts
-              position: "fixed", // Fix position above the chat input
-              bottom: "80px", // Adjusted to be above the chat input area
+              flexWrap: "wrap",
+              position: "fixed",
+              bottom: "80px",
               left: "50%",
-              transform: "translateX(-50%)", // Center horizontally
-              zIndex: 2, // Ensure it stays above other components
+              transform: "translateX(-50%)",
+              zIndex: 2,
             }}
           >
             <SuggestedPrompts prompts={prompts} onSelect={handlePromptSelect} />
@@ -163,10 +163,9 @@ const App: React.FC = () => {
             position: "fixed",
             bottom: 0,
             left: 0,
-            zIndex: 1, // Ensure chat input stays above the chat history
+            zIndex: 1,
           }}
         >
-          {/* Input Area Container */}
           <Box
             sx={{
               display: "flex",
@@ -178,8 +177,6 @@ const App: React.FC = () => {
             }}
           >
             <NewTopicButton onNewTopic={handleNewTopic} />
-
-            {/* Centered Chat Input */}
             <Box
               sx={{
                 flexGrow: 1,
@@ -190,7 +187,6 @@ const App: React.FC = () => {
             >
               <ChatInput onSend={sendMessage} />
             </Box>
-
             <FeedbackButton />
           </Box>
         </Box>
